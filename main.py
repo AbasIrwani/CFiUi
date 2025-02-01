@@ -1,35 +1,39 @@
-from flask import Flask, request
-from telegram import Bot, Update
-import os
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 
-TOKEN = "7905964403:AAFRfDSpAsyyt6I17Xzen4xBfV7ZdrZF494"
-WEBHOOK_URL = "https://github.com/AbasIrwani/CFiUi/"  # Replace with your actual domain
+# Your Telegram Bot Token
+BOT_TOKEN = "7905964403:AAFRfDSpAsyyt6I17Xzen4xBfV7ZdrZF494"
 
-bot = Bot(token=TOKEN)
-app = Flask(__name__)
+# Define your start command function
+def start(update, context):
+    keyboard = [
+        [InlineKeyboardButton("Check Price", callback_data='check_price')],
+        [InlineKeyboardButton("Help", callback_data='help')],
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text("Welcome to the Crypto Bot!", reply_markup=reply_markup)
 
-@app.route("/", methods=["GET"])
-def home():
-    return "Bot is running!"
+# Callback function for buttons
+def button(update, context):
+    query = update.callback_query
+    query.answer()
 
-@app.route(f"/{TOKEN}", methods=["POST"])
-def webhook():
-    update = Update.de_json(request.get_json(), bot)
-    chat_id = update.message.chat_id
-    text = update.message.text
+    if query.data == 'check_price':
+        query.edit_message_text(text="Fetching the latest price...")
+        # Call your API to get crypto price (fake value here)
+        query.edit_message_text(text="Price: $50,000")  # Replace with actual API response
 
-    # Respond to messages
-    if text == "/start":
-        bot.send_message(chat_id=chat_id, text="Welcome to my bot! 🚀")
-    else:
-        bot.send_message(chat_id=chat_id, text=f"You said: {text}")
+    elif query.data == 'help':
+        query.edit_message_text(text="Use the 'Check Price' button to get the latest price!")
 
-    return "OK", 200
+# Main function to set up the bot
+def main():
+    updater = Updater(BOT_TOKEN, use_context=True)
+    dp = updater.dispatcher
+    dp.add_handler(CommandHandler('start', start))  # Handle '/start' command
+    dp.add_handler(CallbackQueryHandler(button))   # Handle button clicks
+    updater.start_polling()
+    updater.idle()
 
-# Set webhook on Telegram
-def set_webhook():
-    bot.setWebhook(f"{WEBHOOK_URL}/{TOKEN}")
-
-if __name__ == "__main__":
-    set_webhook()
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+if __name__ == '__main__':
+    main()
