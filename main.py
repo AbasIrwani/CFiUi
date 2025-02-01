@@ -2,8 +2,8 @@ from flask import Flask, request
 from telegram import Bot, Update
 import os
 
-TOKEN = "YOUR_BOT_TOKEN"
-WEBHOOK_URL = "https://your-deployed-url.com"  # Replace with your actual domain
+TOKEN = "7905964403:AAFRfDSpAsyyt6I17Xzen4xBfV7ZdrZF494"
+WEBHOOK_URL = "https://github.com/AbasIrwani/CFiUi/"  # Replace with your actual domain
 
 bot = Bot(token=TOKEN)
 app = Flask(__name__)
